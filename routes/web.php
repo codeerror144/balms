@@ -49,12 +49,7 @@ use App\Http\Controllers\NotificationController;
         Route::post('/recognize-face', [UserListController::class, 'recognizeFace']);
         Route::post('/adminuser/facial/save', [BiometricController::class, 'saveFacialData'])->name('adminuser.facial.save');
         Route::post('/adminuser/facial/capture', [BiometricController::class, 'saveCapturedFacialData'])->name('adminuser.facial.capture');
-
-
-        Route::post('/save-fingerprint', [BiometricController::class, 'saveFingerprint'])->name('save.fingerprint');
-
-
-
+        Route::delete('/biometric/{userId}', [BiometricController::class, 'deleteBiometricData'])->name('biometric.delete');
 
 
     });

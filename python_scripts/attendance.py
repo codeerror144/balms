@@ -1,3 +1,4 @@
+from mtcnn import MTCNN
 import cv2
 import numpy as np
 import face_recognition
@@ -10,9 +11,15 @@ from PIL import Image, ImageTk
 import threading
 from smartcard.System import readers
 import logging
+import time 
+import threading
+
 
 # Set up logging to a file to capture RFID errors
 logging.basicConfig(filename='rfid_errors.log', level=logging.ERROR)
+
+# Initialize MTCNN for face detection
+detector = MTCNN()
 
 # Database connection
 try:
@@ -30,7 +37,7 @@ cursor = db.cursor()
 
 # Define allowed time ranges
 morning_login_start = datetime.strptime("08:00", "%H:%M").time()
-morning_login_end = datetime.strptime("08:30", "%H:%M").time()
+morning_login_end = datetime.strptime("09:50", "%H:%M").time()
 morning_logout_start = datetime.strptime("11:30", "%H:%M").time()
 morning_logout_end = datetime.strptime("12:00", "%H:%M").time()
 
@@ -107,92 +114,132 @@ def read_rfid_tag():
         logging.error(f"Reader initialization failed: {e}")
         return None
 
-# Wait for RFID
+
+
 def wait_for_rfid_tag(timeout=15):
-    start_time = datetime.now()
-    while (datetime.now() - start_time).seconds < timeout:
+    """Wait for RFID tag in a non-blocking manner with a timeout."""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
         rfid_uid = read_rfid_tag()
         if rfid_uid:
             return rfid_uid
+        time.sleep(0.1)  # Add a small delay to reduce CPU usage
     return None
 
-# Log attendance with time validation and duplicate check
-def log_employee_attendance(user_id, attendance_type):
-    log_time = datetime.now().time()
 
-    # Check if the user has already logged in or logged out
-    cursor.execute("SELECT login_time, logout_time FROM attendances WHERE user_id = %s", (user_id,))
+# Log attendance with session-based validation
+def log_employee_attendance(user_id, attendance_type):
+    current_time = datetime.now()
+    log_time = current_time.time()
+    current_date = current_time.date()
+
+    # Determine the session based on the current time
+    if morning_login_start <= log_time <= morning_logout_end:
+        session = "morning"
+    elif afternoon_login_start <= log_time <= afternoon_logout_end:
+        session = "afternoon"
+    else:
+        return "The Time is Out for Attendance"
+
+    # Check if there's already an entry for the current session and user
+    cursor.execute(
+        """
+        SELECT login_time, logout_time 
+        FROM attendances 
+        WHERE user_id = %s AND session = %s AND DATE(login_time) = %s
+        """,
+        (user_id, session, current_date)
+    )
     result = cursor.fetchone()
 
+    if result:
+        if attendance_type == "login_time":
+            if result[0] is not None:  # Check if login time already exists
+                return f"You already logged in for the {session} session today."
+        elif attendance_type == "logout_time":
+            if result[1] is not None:  # Check if logout time already exists
+                return f"You already logged out for the {session} session today."
+
     if attendance_type == "login_time":
-        # Check for existing login time
-        if result and result[0] is not None:
-            return "You already logged in."
-        
         # Validate login time
         if (morning_login_start <= log_time <= morning_login_end) or (afternoon_login_start <= log_time <= afternoon_login_end):
             cursor.execute(
-                "INSERT INTO attendances (user_id, login_time) VALUES (%s, %s) ON DUPLICATE KEY UPDATE login_time = %s",
-                (user_id, datetime.now(), datetime.now())
+                """
+                INSERT INTO attendances (user_id, session, login_time) 
+                VALUES (%s, %s, %s)
+                """,
+                (user_id, session, current_time)
             )
             db.commit()
-            return "Successfully Logged In"
+            return f"Successfully Logged In for the {session} session."
         else:
             return "The Time is Out for Login"
 
     elif attendance_type == "logout_time":
-        # Check for existing logout time
-        if result and result[1] is not None:
-            return "You already logged out."
-        
         # Validate logout time
         if (morning_logout_start <= log_time <= morning_logout_end) or (afternoon_logout_start <= log_time <= afternoon_logout_end):
             cursor.execute(
-                "UPDATE attendances SET logout_time = %s WHERE user_id = %s",
-                (datetime.now(), user_id)
+                """
+                UPDATE attendances 
+                SET logout_time = %s 
+                WHERE user_id = %s AND session = %s AND DATE(login_time) = %s
+                """,
+                (current_time, user_id, session, current_date)
             )
             db.commit()
-            return "Successfully Logged Out"
+            return f"Successfully Logged Out for the {session} session."
         else:
             return "The Time is Out for Logout"
+
 
 # Update message
 def update_message(message, message_label):
     message_label.config(text=message)
 
-# RFID prompt
+
+
 def handle_rfid_prompt(user_id, message_label, attendance_type):
-    update_message(f"Please Tap Your RFID tag to {'Login' if attendance_type == 'login_time' else 'Logout'}.", message_label)
-    while True:
-        rfid_tag = wait_for_rfid_tag()
+    def rfid_check():
+        update_message(f"Please Tap Your RFID tag to {'Login' if attendance_type == 'login_time' else 'Logout'}.", message_label)
+        rfid_tag = wait_for_rfid_tag()  # This now runs with the updated non-blocking function
         if rfid_tag:
             saved_rfid = get_saved_rfid_for_user(user_id)
             if rfid_tag == saved_rfid:
                 result = log_employee_attendance(user_id, attendance_type)
                 update_message(result, message_label)
-                break
             else:
                 update_message("Invalid RFID tag. Attendance not logged.", message_label)
         else:
             update_message("RFID tag not detected. Ready for next user.", message_label)
-            break
 
-# Process camera frame
+    # Run RFID check in a separate thread
+    rfid_thread = threading.Thread(target=rfid_check, daemon=True)
+    rfid_thread.start()
+
+# Process camera frame with MTCNN
 def process_camera_frame(camera, label, message_label, attendance_type):
     global last_recognized
     ret, frame = camera.read()
     if not ret:
         return None
 
-    # Resize frame for faster processing and better accuracy
+    # Resize frame for faster processing
     small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
     rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
 
-    # Use HOG for face detection
-    face_locations = face_recognition.face_locations(rgb_small_frame, model='hog')
+    # Use MTCNN for face detection
+    detected_faces = detector.detect_faces(rgb_small_frame)
+
+    face_locations = []
+    for face in detected_faces:
+        x, y, width, height = face['box']
+        top, right, bottom, left = y, x + width, y + height, x
+        face_locations.append((top, right, bottom, left))
+
+    # Get face encodings
     face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
-    for face_encoding, face_location in zip(face_encodings, face_locations):
+    for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
         matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
         face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
         best_match_index = np.argmin(face_distances)
@@ -207,7 +254,7 @@ def process_camera_frame(camera, label, message_label, attendance_type):
                 handle_rfid_prompt(user_id, message_label, attendance_type)
 
             # Scale face location back to the original frame size
-            top, right, bottom, left = [int(coord * 4) for coord in face_location]
+            top, right, bottom, left = [int(coord * 4) for coord in [top, right, bottom, left]]
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
             cv2.putText(frame, employee_name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
@@ -218,8 +265,7 @@ def process_camera_frame(camera, label, message_label, attendance_type):
     label.imgtk = imgtk
     label.configure(image=imgtk)
 
-
-# Start camera thread
+# Camera thread and GUI setup
 def start_camera_thread(camera, label, message_label, attendance_type):
     def run():
         while True:
@@ -227,58 +273,45 @@ def start_camera_thread(camera, label, message_label, attendance_type):
     camera_thread = threading.Thread(target=run, daemon=True)
     camera_thread.start()
 
-# Main GUI
 def start_attendance_monitoring():
     root = tk.Tk()
     root.title("Employee Attendance Monitoring")
     root.geometry("800x600")
     root.resizable(True, True)
 
-    # Header Label
     header = tk.Label(root, text="Employee Attendance System", font=("Arial", 24), bg="blue", fg="white")
     header.pack(fill=tk.X, pady=10)
 
-    # Message Label
     message_label = tk.Label(root, text="Please position your face in front of the camera for attendance check.", font=("Arial", 14), fg="black")
     message_label.pack(pady=10)
 
-    # Frame for Login Camera
     login_frame = tk.Frame(root, bd=2, relief=tk.SOLID)
     login_frame.pack(side=tk.LEFT, padx=20, pady=20)
 
-    # Label for Login Frame
     login_title = tk.Label(login_frame, text="Login Camera", font=("Arial", 16, "bold"), fg="green")
     login_title.pack(pady=5)
 
-    # Label to display Login Camera feed
     login_label = Label(login_frame)
     login_label.pack()
 
-    # Frame for Logout Camera
     logout_frame = tk.Frame(root, bd=2, relief=tk.SOLID)
     logout_frame.pack(side=tk.RIGHT, padx=20, pady=20)
 
-    # Label for Logout Frame
     logout_title = tk.Label(logout_frame, text="Logout Camera", font=("Arial", 16, "bold"), fg="red")
     logout_title.pack(pady=5)
 
-    # Label to display Logout Camera feed
     logout_label = Label(logout_frame)
     logout_label.pack()
 
-    # Load known faces
     global known_face_encodings, known_face_ids, known_face_names
     known_face_encodings, known_face_ids, known_face_names = load_registered_employee_faces()
 
-    # Initialize cameras
     login_camera = cv2.VideoCapture(0)
     logout_camera = cv2.VideoCapture(1)
 
-    # Start camera threads
     start_camera_thread(login_camera, login_label, message_label, "login_time")
     start_camera_thread(logout_camera, logout_label, message_label, "logout_time")
 
-    # Run the GUI loop
     root.mainloop()
 
 # Start the system
