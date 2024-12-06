@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserRole;
 
-class IfAdmin
+class ifAdmin
 {
     /**
      * Handle an incoming request.

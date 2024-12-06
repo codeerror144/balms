@@ -33,7 +33,7 @@ use App\Http\Controllers\NotificationController;
         Route::get('signout', [CustomAuthController::class, 'signOut'])->name('signout');
     });
         // Admin routes (admin role required)
-    Route::group(['middleware' => ['IfAdmin']], function () {
+    Route::group(['middleware' => ['ifAdmin']], function () {
         Route::get('/Admin/Dashboard', [App\Http\Controllers\Admin\AdminController::class, 'index'])->name('admindashboard');
         // user Management Routes
         Route::get('/admin/user', [UserListController::class, 'index'])->name('adminuser');
@@ -102,11 +102,6 @@ Route::get('/fetch-rfid-uid', function () {
         Route::get('/admin/attendance-export/{format}', [ReportsController::class, 'exportAttendance'])->name('export.attendance');
         Route::get('/attendance-report/pdf', [ReportsController::class, 'exportToPdf'])->name('export.attendance.pdf');
 
-
-
-
-
-
         Route::get('/logs', [LogController::class, 'index'])->name('adminlog');
         Route::post('/logs', [LogController::class, 'store']);
         Route::get('/logs/{userId}', [LogController::class, 'show']);
@@ -114,7 +109,7 @@ Route::get('/fetch-rfid-uid', function () {
 
     });
         // Employee routes (employee role required)
-        Route::group(['middleware' => ['IfEmployee']], function () {
+        Route::group(['middleware' => ['ifEmployee']], function () {
         Route::get('/Employee/Dashboard', [App\Http\Controllers\Employee\EmployeeController::class, 'index'])->name('employeedashboard');
         Route::get('/employee/logs', [EmployeeController::class, 'logHistory'])->name('employee.log.history');
         Route::get('/employee/systeminfo', [EmployeeSystemInfoController::class, 'index'])->name('employeesysteminfo');
@@ -122,7 +117,7 @@ Route::get('/fetch-rfid-uid', function () {
 
     });
         // Student routes (student role required)
-    Route::group(['middleware' => ['IfStudent']], function () {
+    Route::group(['middleware' => ['ifStudent']], function () {
         Route::get('/Student/Dashboard', [App\Http\Controllers\Student\StudentController::class, 'index'])->name('studentdashboard');
         Route::get('/student/logs', [StudentController::class, 'logHistory'])->name('student.log.history');
         Route::get('/student/systeminfo', [StudentSystemInfoController::class, 'index'])->name('studentsysteminfo');

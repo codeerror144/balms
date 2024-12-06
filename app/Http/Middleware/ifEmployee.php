@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserRole;
 
-class IfEmployee
+class ifEmployee
 {
     /**
      * Handle an incoming request.
