@@ -20,6 +20,6 @@ class ifAdmin
             return $next($request);
         }
 
-        return redirect('/login');
+        abort(504);
     }
 }
