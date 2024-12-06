@@ -114,7 +114,7 @@ Route::get('/fetch-rfid-uid', function () {
 
     });
         // Employee routes (employee role required)
-        Route::group(['middleware' => ['ifEmployee']], function () {
+        Route::group(['middleware' => ['IfEmployee']], function () {
         Route::get('/Employee/Dashboard', [App\Http\Controllers\Employee\EmployeeController::class, 'index'])->name('employeedashboard');
         Route::get('/employee/logs', [EmployeeController::class, 'logHistory'])->name('employee.log.history');
         Route::get('/employee/systeminfo', [EmployeeSystemInfoController::class, 'index'])->name('employeesysteminfo');
@@ -122,7 +122,7 @@ Route::get('/fetch-rfid-uid', function () {
 
     });
         // Student routes (student role required)
-    Route::group(['middleware' => ['ifStudent']], function () {
+    Route::group(['middleware' => ['IfStudent']], function () {
         Route::get('/Student/Dashboard', [App\Http\Controllers\Student\StudentController::class, 'index'])->name('studentdashboard');
         Route::get('/student/logs', [StudentController::class, 'logHistory'])->name('student.log.history');
         Route::get('/student/systeminfo', [StudentSystemInfoController::class, 'index'])->name('studentsysteminfo');
