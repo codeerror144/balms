@@ -8,6 +8,10 @@ use App\Models\Attendance;
 use Maatwebsite\Excel\Facades\Excel; // For CSV export
 use App\Exports\LogExport; // Custom export class for Log
 use App\Exports\AttendanceExport; // Custom export class for Attendance
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
+
 
 class ReportsController extends Controller
 {
@@ -120,4 +124,31 @@ class ReportsController extends Controller
 
         return redirect()->route('adminattendancereports')->with('error', 'Invalid export format.');
     }
+
+
+   
+public function exportToPdf(Request $request)
+{
+    // Fetch attendance data based on filters
+    $attendances = Attendance::with('user')
+        ->when($request->start_date, function ($query) use ($request) {
+            $query->whereDate('login_time', '>=', $request->start_date);
+        })
+        ->when($request->end_date, function ($query) use ($request) {
+            $query->whereDate('logout_time', '<=', $request->end_date);
+        })
+        ->when($request->search, function ($query) use ($request) {
+            $query->whereHas('user', function ($userQuery) use ($request) {
+                $userQuery->where('name', 'like', '%' . $request->search . '%');
+            });
+        })
+        ->get();
+
+    // Pass data to PDF view
+    $pdf = Pdf::loadView('admin.reports.attendance_pdf', compact('attendances'));
+
+    // Return PDF for download
+    return $pdf->download('attendance_report.pdf');
+}
+
 }

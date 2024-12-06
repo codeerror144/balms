@@ -14,7 +14,6 @@ use App\Http\Controllers\Employee\EmployeeSystemInfoController;
 use App\Http\Controllers\NotificationController;
 
 
-
         Route::group(['namespace' => 'App\Http\Controllers'], function() {
         // Redirect to login page
         Route::get('/', function () {
@@ -54,7 +53,12 @@ use App\Http\Controllers\NotificationController;
 
     });
 
+    
 
+    
+    
+    
+    
     // Route to view notifications
     Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
 
@@ -94,8 +98,12 @@ Route::get('/fetch-rfid-uid', function () {
         Route::get('/admin/reports', [ReportsController::class, 'index'])->name('adminreports');
         Route::get('/admin/reports/export/{format}', [ReportsController::class, 'export'])->name('log.export');
 
-Route::get('/admin/attendance-reports', [ReportsController::class, 'attendanceReports'])->name('adminattendancereports');
-Route::get('/admin/attendance-export/{format}', [ReportsController::class, 'exportAttendance'])->name('export.attendance');
+        Route::get('/admin/attendance-reports', [ReportsController::class, 'attendanceReports'])->name('adminattendancereports');
+        Route::get('/admin/attendance-export/{format}', [ReportsController::class, 'exportAttendance'])->name('export.attendance');
+        Route::get('/attendance-report/pdf', [ReportsController::class, 'exportToPdf'])->name('export.attendance.pdf');
+
+
+
 
 
 
@@ -120,3 +128,4 @@ Route::get('/admin/attendance-export/{format}', [ReportsController::class, 'expo
         Route::get('/student/systeminfo', [StudentSystemInfoController::class, 'index'])->name('studentsysteminfo');
 
     });
+

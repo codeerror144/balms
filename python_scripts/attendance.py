@@ -39,9 +39,9 @@ cursor = db.cursor()
 morning_login_start = datetime.strptime("08:00", "%H:%M").time()
 morning_login_end = datetime.strptime("09:50", "%H:%M").time()
 morning_logout_start = datetime.strptime("11:30", "%H:%M").time()
-morning_logout_end = datetime.strptime("12:00", "%H:%M").time()
+morning_logout_end = datetime.strptime("11:45", "%H:%M").time()
 
-afternoon_login_start = datetime.strptime("12:45", "%H:%M").time()
+afternoon_login_start = datetime.strptime("12:00", "%H:%M").time()
 afternoon_login_end = datetime.strptime("14:06", "%H:%M").time()
 afternoon_logout_start = datetime.strptime("14:10", "%H:%M").time()
 afternoon_logout_end = datetime.strptime("17:30", "%H:%M").time()
@@ -216,7 +216,6 @@ def handle_rfid_prompt(user_id, message_label, attendance_type):
     rfid_thread = threading.Thread(target=rfid_check, daemon=True)
     rfid_thread.start()
 
-# Process camera frame with MTCNN
 def process_camera_frame(camera, label, message_label, attendance_type):
     global last_recognized
     ret, frame = camera.read()
@@ -240,23 +239,34 @@ def process_camera_frame(camera, label, message_label, attendance_type):
     face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
     for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-        matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+        # Compare face encodings to known faces
+        matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.5)
         face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-        best_match_index = np.argmin(face_distances)
 
-        if matches[best_match_index] or face_distances[best_match_index] < 0.6:
+        # Determine the best match
+        best_match_index = np.argmin(face_distances)
+        is_recognized = matches[best_match_index] and face_distances[best_match_index] < 0.5
+
+        if is_recognized:
             user_id = known_face_ids[best_match_index]
             employee_name = known_face_names[best_match_index]
             now = datetime.now()
 
+            # Prevent duplicate recognition within a time window
             if user_id not in last_recognized or (now - last_recognized[user_id] > timedelta(seconds=30)):
                 last_recognized[user_id] = now
                 handle_rfid_prompt(user_id, message_label, attendance_type)
 
-            # Scale face location back to the original frame size
+            # Draw a green rectangle for recognized faces
             top, right, bottom, left = [int(coord * 4) for coord in [top, right, bottom, left]]
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
             cv2.putText(frame, employee_name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+        else:
+            # Label as "Unknown" for unregistered faces
+            employee_name = "Unknown"
+            top, right, bottom, left = [int(coord * 4) for coord in [top, right, bottom, left]]
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+            cv2.putText(frame, employee_name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
 
     # Display the processed frame
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -264,6 +274,7 @@ def process_camera_frame(camera, label, message_label, attendance_type):
     imgtk = ImageTk.PhotoImage(image=img)
     label.imgtk = imgtk
     label.configure(image=imgtk)
+
 
 # Camera thread and GUI setup
 def start_camera_thread(camera, label, message_label, attendance_type):

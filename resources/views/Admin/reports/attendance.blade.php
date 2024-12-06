@@ -1,6 +1,8 @@
 @extends('layouts.Admin.default')
 
+
 @section('content')
+
 
 <div class="container-fluid mt-4">
     <!-- Page Header -->
@@ -8,13 +10,17 @@
         <h3 class="text-primary"><i class="fas fa-user-check"></i> Attendance Report</h3>
         <div class="d-flex gap-2">
             <a href="{{ route('export.attendance', ['format' => 'csv']) }}" class="btn btn-secondary btn-sm shadow-sm">
-                <i class="fas fa-file-export"></i> Export
+                <i class="fas fa-file-export"></i> CSV
             </a>
+            <a href="{{ route('export.attendance.pdf') }}" class="btn btn-danger btn-sm shadow-sm">
+        <i class="fas fa-file-pdf"></i> PDF
+    </a>
             <a href="{{ route('adminreports') }}" class="btn btn-primary btn-sm shadow-sm">
                 <i class="fas fa-history"></i> Log History
             </a>
         </div>
     </div>
+
 
     <!-- Filters Section -->
     <div class="card shadow mb-4">
@@ -50,6 +56,7 @@
         </div>
     </div>
 
+
     <!-- Attendance Table -->
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
@@ -63,6 +70,7 @@
                             <th>Name</th>
                             <th>Login Time</th>
                             <th>Logout Time</th>
+                            <th>Session</th>
                            
                         </tr>
                     </thead>
@@ -72,7 +80,8 @@
                                 <td>{{ $attendance->user->name }}</td>
                                 <td>{{ $attendance->login_time }}</td>
                                 <td>{{ $attendance->logout_time }}</td>
-                                
+                                <td>{{ $attendance->session }}</td>
+                               
                             </tr>
                         @empty
                             <tr>
@@ -89,5 +98,6 @@
         </div>
     </div>
 </div>
+
 
 @endsection
