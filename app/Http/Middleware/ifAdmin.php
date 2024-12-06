@@ -20,6 +20,6 @@ class ifAdmin
             return $next($request);
         }
 
-        abort(504);
+        abort(403);
     }
 }
