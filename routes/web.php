@@ -14,14 +14,14 @@ use App\Http\Controllers\Employee\EmployeeSystemInfoController;
 use App\Http\Controllers\NotificationController;
 
 
-        Route::group(['namespace' => 'App\Http\Controllers'], function() {
+    Route::group(['namespace' => 'App\Http\Controllers'], function() {
         // Redirect to login page
         Route::get('/', function () {
         return redirect('/login');
     });
 
         // Guest routes (not authenticated users)
-        Route::group(['middleware' => ['guest']], function() {
+    Route::group(['middleware' => ['guest']], function() {
         Route::get('/login', [CustomAuthController::class, 'index'])->name('login');
         Route::post('custom-login', [CustomAuthController::class, 'customLogin'])->name('login.custom');
 
@@ -29,11 +29,11 @@ use App\Http\Controllers\NotificationController;
         Route::post('custom-registration', [CustomAuthController::class, 'customRegistration'])->name('register.custom');
     });
         // Authenticated user routes
-        Route::group(['middleware' => ['auth']], function() {
+    Route::group(['middleware' => ['auth']], function() {
         Route::get('signout', [CustomAuthController::class, 'signOut'])->name('signout');
     });
         // Admin routes (admin role required)
-        Route::group(['middleware' => ['ifAdmin']], function () {
+    Route::group(['middleware' => ['IfAdmin']], function () {
         Route::get('/Admin/Dashboard', [App\Http\Controllers\Admin\AdminController::class, 'index'])->name('admindashboard');
         // user Management Routes
         Route::get('/admin/user', [UserListController::class, 'index'])->name('adminuser');
@@ -122,10 +122,9 @@ Route::get('/fetch-rfid-uid', function () {
 
     });
         // Student routes (student role required)
-        Route::group(['middleware' => ['ifStudent']], function () {
+    Route::group(['middleware' => ['ifStudent']], function () {
         Route::get('/Student/Dashboard', [App\Http\Controllers\Student\StudentController::class, 'index'])->name('studentdashboard');
         Route::get('/student/logs', [StudentController::class, 'logHistory'])->name('student.log.history');
         Route::get('/student/systeminfo', [StudentSystemInfoController::class, 'index'])->name('studentsysteminfo');
-
     });
 
