@@ -17,7 +17,7 @@ class ifStudent
 
 public function handle(Request $request, Closure $next)
 {
-    if (Auth::check() && Auth::user()->role_id === 3) { // Assuming '3' is the Student role
+    if (Auth::check() && Auth::user()->role_id == 3) { // Assuming '3' is the Student role
         return $next($request);
     }
 
