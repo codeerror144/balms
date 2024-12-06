@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserRole;
 
-class ifAdmin
+class IfAdmin
 {
     /**
      * Handle an incoming request.
@@ -22,4 +22,4 @@ class ifAdmin
 
         return redirect('/login');
     }
-    }
+}
