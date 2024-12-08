@@ -30,7 +30,7 @@ class BiometricController extends Controller
 
 
     // Save the image to uploads/faces
-    $path = public_path('uploads/faces/');
+    $path = public_path('uploads/');
     if (!File::exists($path)) {
         File::makeDirectory($path, 0755, true);
     }
@@ -44,12 +44,12 @@ class BiometricController extends Controller
     // Update or create biometric data
     $existingFacialData = Biometric::where('user_id', $userId)->first();
     if ($existingFacialData) {
-        $existingFacialData->update(['captured_image' => 'uploads/faces/' . $filename]);
+        $existingFacialData->update(['captured_image' => 'uploads/' . $filename]);
         session()->flash('success', 'Facial Data updated successfully!');
     } else {
         Biometric::create([
             'user_id' => $userId,
-            'captured_image' => 'uploads/faces/' . $filename,
+            'captured_image' => 'uploads/' . $filename,
         ]);
         session()->flash('success', 'Facial Data added successfully!');
     }

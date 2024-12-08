@@ -49,51 +49,22 @@ use App\Http\Controllers\NotificationController;
         Route::post('/adminuser/facial/save', [BiometricController::class, 'saveFacialData'])->name('adminuser.facial.save');
         Route::post('/adminuser/facial/capture', [BiometricController::class, 'saveCapturedFacialData'])->name('adminuser.facial.capture');
         Route::delete('/biometric/{userId}', [BiometricController::class, 'deleteBiometricData'])->name('biometric.delete');
-
-
-    });
-
-    
-
-    
-    
-    
-    
-    // Route to view notifications
-    Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
-
-    // Route to view a single notification
-    Route::get('/admin/notification/{id}', [NotificationController::class, 'show'])->name('notification.show');
-
-    // Route to mark notifications as read
-    Route::post('/admin/notification/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notification.markAsRead');
-
-
-
-
-
-    
-Route::get('/fetch-rfid-uid', function () {
-    $output = [];
-    $return_var = 0;
-    // Adjust the path to your Python script as needed
-    exec('python C:\Laragon\www\bits_logbook\python_scripts\fetch_rfid_uid.py', $output, $return_var);
-
-    if ($return_var === 0) {
-        return response()->json(['uid' => trim(implode("\n", $output))]);
-    } else {
-        return response()->json(['error' => 'Failed to fetch UID']);
-    }
-});
-
-
-
-
-
-
-    Route::post('/save-rfid/{userId}', 'RfidController@saveRFID')->name('save.rfid');
-
-
+        Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
+        Route::get('/admin/notification/{id}', [NotificationController::class, 'show'])->name('notification.show');
+        Route::post('/admin/notification/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notification.markAsRead');
+        Route::get('/fetch-rfid-uid', function () {
+            $output = [];
+            $return_var = 0;
+            // Adjust the path to your Python script as needed
+            exec('python C:\Laragon\www\bits_logbook\python_scripts\fetch_rfid_uid.py', $output, $return_var);
+        
+            if ($return_var === 0) {
+                return response()->json(['uid' => trim(implode("\n", $output))]);
+            } else {
+                return response()->json(['error' => 'Failed to fetch UID']);
+            }
+        });
+        Route::post('/save-rfid/{userId}', 'RfidController@saveRFID')->name('save.rfid');
         Route::get('/admin/systeminfo', [SystemInfoController::class, 'index'])->name('adminsysteminfo');
         Route::get('/admin/reports', [ReportsController::class, 'index'])->name('adminreports');
         Route::get('/admin/reports/export/{format}', [ReportsController::class, 'export'])->name('log.export');
@@ -108,12 +79,13 @@ Route::get('/fetch-rfid-uid', function () {
         Route::get('/admin/attendance', [LogController::class, 'attendanceIndex'])->name('admin.attendance.index');
 
     });
+
+    });
         // Employee routes (employee role required)
-        Route::group(['middleware' => ['ifEmployee']], function () {
+    Route::group(['middleware' => ['ifEmployee']], function () {
         Route::get('/Employee/Dashboard', [App\Http\Controllers\Employee\EmployeeController::class, 'index'])->name('employeedashboard');
         Route::get('/employee/logs', [EmployeeController::class, 'logHistory'])->name('employee.log.history');
         Route::get('/employee/systeminfo', [EmployeeSystemInfoController::class, 'index'])->name('employeesysteminfo');
-
 
     });
         // Student routes (student role required)

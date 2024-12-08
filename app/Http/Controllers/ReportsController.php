@@ -145,7 +145,7 @@ public function exportToPdf(Request $request)
         ->get();
 
     // Pass data to PDF view
-    $pdf = Pdf::loadView('admin.reports.attendance_pdf', compact('attendances'));
+    $pdf = Pdf::loadView('Admin.reports.attendance_pdf', compact('attendances'));
 
     // Return PDF for download
     return $pdf->download('attendance_report.pdf');

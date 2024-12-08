@@ -106,7 +106,7 @@ class UserListController extends Controller
     DB::table('attendances')->where('user_id', $id)->delete(); // Delete attendance records related to the user
 
     // Delete associated face image if it exists
-    $imagePath = public_path('uploads/faces/' . $user->id . '.png'); // Adjust extension if necessary
+    $imagePath = public_path('uploads/' . $user->id . '.png'); // Adjust extension if necessary
     if (file_exists($imagePath)) {
         unlink($imagePath); // Delete the image file
     }
