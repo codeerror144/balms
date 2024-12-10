@@ -4,12 +4,11 @@
 
 <h2 class="text-center my-4">Admin Dashboard</h2>
 <div class="content-wrapper">
-    
 
     <!-- Metrics Section -->
     <div class="row mb-4">
         <!-- Total Students -->
-        <div class="col-lg-3 col-md-6 mb-4">
+        <div class="col-lg-3 col-md-6 col-12 mb-4">
             <div class="card bg-primary text-white">
                 <div class="card-body text-center">
                     <h5 class="card-title"><i class="fas fa-user-graduate"></i> Total Students</h5>
@@ -18,7 +17,7 @@
             </div>
         </div>
         <!-- Total Employees -->
-        <div class="col-lg-3 col-md-6 mb-4">
+        <div class="col-lg-3 col-md-6 col-12 mb-4">
             <div class="card bg-primary text-white">
                 <div class="card-body text-center">
                     <h5 class="card-title"><i class="fas fa-user-tie"></i> Total Employees</h5>
@@ -27,7 +26,7 @@
             </div>
         </div>
         <!-- Total Logs -->
-        <div class="col-lg-3 col-md-6 mb-4">
+        <div class="col-lg-3 col-md-6 col-12 mb-4">
             <div class="card bg-primary text-white">
                 <div class="card-body text-center">
                     <h5 class="card-title"><i class="fas fa-database"></i> Total Logs</h5>
@@ -36,10 +35,10 @@
             </div>
         </div>
         <!-- Unread Notifications -->
-        <div class="col-lg-3 col-md-6 mb-4">
+        <div class="col-lg-3 col-md-6 col-12 mb-4">
             <div class="card bg-primary text-white">
                 <div class="card-body text-center">
-                    <h5 class="card-title"><i class="fas fa-bell"></i>Notifications</h5>
+                    <h5 class="card-title"><i class="fas fa-bell"></i> Notifications</h5>
                     <h2>{{ $notifications->count() }}</h2>
                 </div>
             </div>
@@ -49,7 +48,7 @@
     <!-- Graphs Section -->
     <div class="row mb-4">
         <!-- Log Entries Chart -->
-        <div class="col-md-6 mb-4">
+        <div class="col-md-6 col-12 mb-4">
             <div class="card shadow">
                 <div class="card-body">
                     <h5 class="card-title text-center">Log Entries Overview</h5>
@@ -60,7 +59,7 @@
             </div>
         </div>
         <!-- Attendance Chart -->
-        <div class="col-md-6 mb-4">
+        <div class="col-md-6 col-12 mb-4">
             <div class="card shadow">
                 <div class="card-body">
                     <h5 class="card-title text-center">Attendance Overview</h5>
@@ -74,30 +73,32 @@
 
     <!-- Recent Activity Section -->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-12">
             <div class="card shadow">
                 <div class="card-body">
                     <h5 class="card-title">Recent Activities</h5>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>User</th>
-                                <th>Type</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($logs as $index => $log)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $log->user->name }}</td>
-                                <td>{{ $log->user->type }}</td>
-                                <td>{{ $log->log_time }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>User</th>
+                                    <th>Type</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($logs as $index => $log)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $log->user->name }}</td>
+                                    <td>{{ $log->user->type }}</td>
+                                    <td>{{ $log->log_time }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -165,7 +166,14 @@
 <style>
     .chart-container {
         position: relative;
-        height: 350px;
+        height: 100%;
+        min-height: 350px;
+    }
+
+    @media (max-width: 576px) {
+        .card-body h2 {
+            font-size: 1.5rem;
+        }
     }
 </style>
 @endsection

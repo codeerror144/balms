@@ -3,28 +3,26 @@
 @section('content')
 <div class="container-fluid mt-4">
     <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-   
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <!-- Back to Log History Button -->
-        <a href="{{ route('adminlog') }}" class="btn btn-secondary btn-sm shadow-sm">
+        <a href="{{ route('adminlog') }}" class="btn btn-secondary btn-sm shadow-sm mb-2 mb-md-0">
             Back to Log History
         </a>
+        
+        <!-- Search Section -->
+        <form action="{{ route('admin.attendance.index') }}" method="GET" class="d-flex w-auto">
+    <div class="input-group" style="max-width: 300px; width: 100%;">
+        <input type="text" name="search" class="form-control search-input" placeholder="Search..." value="{{ request()->input('search') }}">
+        <button class="btn search-button" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+</form>
+
     </div>
     
-    <!-- Search Section -->
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-primary"><i class="fas fa-calendar-alt"></i> Attendance History</h3>
-    <form action="{{ route('admin.attendance.index') }}" method="GET" style="width: auto;">
-        <div class="input-group" style="width: 300px;"> <!-- Fixed width -->
-            <input type="text" name="search" class="form-control search-input" placeholder="Search..." value="{{ request()->input('search') }}">
-            <button class="btn search-button" type="submit">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
-    </form>
-</div>
-
+    <!-- Attendance Header -->
+    <h3 class="text-primary mb-4"><i class="fas fa-calendar-alt"></i> Attendance History</h3>
 
     <!-- Attendance Table -->
     <div class="card shadow">
@@ -70,43 +68,55 @@
 <!-- CSS -->
 <style>
     .search-input {
-        border: none; /* Remove border */
-        border-right: none; /* Ensure no right border */
-        border-radius: 25px 0 0 25px; /* Rounded left side */
-        height: 40px; /* Adjust height */
-        font-size: 16px; /* Font size for text */
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Optional subtle shadow for depth */
-    }
+    border: none;
+    border-right: none;
+    border-radius: 25px 0 0 25px;
+    height: 40px;
+    font-size: 16px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 300px; /* Set a maximum width */
+    width: 100%; /* Ensure it adapts within the parent container */
+}
 
     .search-button {
-        border: none; /* Remove border */
-        border-left: none; /* Ensure no left border */
-        border-radius: 0 25px 25px 0; /* Rounded right side */
-        height: 40px; /* Adjust height */
-        background-color: #0056b3; /* Blue button color */
-        color: #fff; /* White text */
+        border: none;
+        border-left: none;
+        border-radius: 0 25px 25px 0;
+        height: 40px;
+        background-color: #0056b3;
+        color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0 15px; /* Padding for spacing */
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Optional subtle shadow for depth */
+        padding: 0 15px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .search-button:hover {
-        background-color: #003d80; /* Darker blue on hover */
+        background-color: #003d80;
     }
 
     .btn-secondary {
-        background-color: #6c757d; /* Bootstrap default secondary color */
+        background-color: #6c757d;
         color: #fff;
     }
 
     .btn-secondary:hover {
-        background-color: #5a6268; /* Darker gray for hover effect */
+        background-color: #5a6268;
     }
 
-    .d-flex.justify-content-between {
-        gap: 15px; /* Spacing between Back button and Search bar */
+    @media (max-width: 768px) {
+        .d-flex.flex-wrap {
+            gap: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+        }
+
+        .search-button {
+            width: auto;
+        }
     }
 </style>
 @endsection

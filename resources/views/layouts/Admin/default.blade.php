@@ -51,7 +51,7 @@
                     <img src="{{ asset('images/bitslog.png') }}" class="mr-8" alt="logo" style="width: 200px; height: auto;" />
                 </a>
                 <a class="navbar-brand brand-logo-mini" href="#">
-                    <img src="{{ asset('images/bitslog.png') }}" alt="logo" style="width: auto; height: auto;" />
+                    <img src="{{ asset('images/logo.png') }}" alt="logo" style="width: auto; height: auto;" />
                 </a>
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
