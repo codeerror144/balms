@@ -62,7 +62,7 @@
                 <!-- User Profile and Notifications -->
                 <ul class="navbar-nav navbar-nav-right d-flex align-items-center">
 
-                    <!-- Notification Dropdown -->
+                   <!-- Notification Dropdown -->
                     <li class="nav-item dropdown mr-3">
                         <a class="nav-link" href="javascript:void(0);" id="notificationBell" data-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-bell"></i>
@@ -76,19 +76,19 @@
                             <h6 class="dropdown-header">Notifications</h6>
                             <div id="notifications-list" style="max-height: 1000px; overflow-y: auto;">
                                 @if(!empty($notifications) && $notifications->count() > 0)
-                                @foreach($notifications as $notification)
-                                    <a class="dropdown-item" href="{{ route('notification.show', $notification->id) }}">
-                                        <img src="{{ asset('unregister_user/' . basename($notification->image)) }}" alt="Notification Image" style="width: 50px; height: 50px; object-fit: cover;">
-                                        {{ $notification->title }} - {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
-                                    </a>
-                                @endforeach
-
+                                    @foreach($notifications as $notification)
+                                        <a class="dropdown-item" href="{{ route('notification.show', $notification->id) }}">
+                                        
+                                            {{ $notification->title }} - {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
+                                        </a>
+                                    @endforeach
                                 @else
                                     <p class="dropdown-item">No new notifications</p>
                                 @endif
                             </div>
                         </div>
                     </li>
+
 
                     <!-- Profile Dropdown -->
                     <li class="nav-item nav-profile dropdown">

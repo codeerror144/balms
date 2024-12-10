@@ -50,9 +50,15 @@ use App\Http\Controllers\NotificationController;
         Route::post('/adminuser/facial/save', [BiometricController::class, 'saveFacialData'])->name('adminuser.facial.save');
         Route::post('/adminuser/facial/capture', [BiometricController::class, 'saveCapturedFacialData'])->name('adminuser.facial.capture');
         Route::delete('/biometric/{userId}', [BiometricController::class, 'deleteBiometricData'])->name('biometric.delete');
-        Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
-        Route::get('/admin/notification/{id}', [NotificationController::class, 'show'])->name('notification.show');
-        Route::post('/admin/notification/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notification.markAsRead');
+        
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('admin.notifications.index');
+        Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('notification.show');
+        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notification.destroy');
+                
+        // Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
+        // Route::get('/admin/notification/{id}', [NotificationController::class, 'show'])->name('notification.show');
+        // Route::post('/admin/notification/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notification.markAsRead');
+       
         Route::get('/fetch-rfid-uid', function () {
             $output = [];
             $return_var = 0;
