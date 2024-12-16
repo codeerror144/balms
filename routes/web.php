@@ -55,68 +55,6 @@ use App\Http\Controllers\NotificationController;
         Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('notification.show');
         Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notification.destroy');
                 
-        Route::get('/fetch-rfid-uid', function () {
-            $pythonPath = env('PYTHON_PATH', 'python'); // Use 'python' as default if not set
-            $scriptPath = public_path('python_scripts/fetch_rfid_uid.py'); // Dynamically generate the script path
-        
-            if (file_exists($scriptPath)) {
-                $output = [];
-                $return_var = 0;
-        
-                // Execute the script with dynamic paths
-                exec($pythonPath . ' ' . escapeshellarg($scriptPath), $output, $return_var);
-        
-                if ($return_var === 0) {
-                    return response()->json(['uid' => trim(implode("\n", $output))]);
-                } else {
-                    return response()->json(['error' => 'Failed to fetch UID']);
-                }
-            } else {
-                return response()->json(['error' => 'Python script not found']);
-            }
-        });
-        
-        Route::get('/logbook', function () {
-            $pythonPath = env('PYTHON_PATH', 'python'); // Use 'python' as default if not set
-            $scriptPath = public_path('python_scripts/facial_recognition.py');
-        
-            if (file_exists($scriptPath)) {
-                $output = [];
-                $return_var = 0;
-        
-                // Execute the script with dynamic paths
-                exec($pythonPath . ' ' . escapeshellarg($scriptPath), $output, $return_var);
-        
-                Log::info('Python Script Output:', $output);
-        
-                return view('real-time-monitoring', ['output' => $output]);
-            } else {
-                Log::error('Python script not found at: ' . $scriptPath);
-                return view('real-time-monitoring', ['error' => 'Python script not found.']);
-            }
-        });
-        
-        Route::get('/attendance', function () {
-            $pythonPath = env('PYTHON_PATH', 'python'); // Use 'python' as default if not set
-            $scriptPath = public_path('python_scripts/attendance.py');
-        
-            if (file_exists($scriptPath)) {
-                $output = [];
-                $return_var = 0;
-        
-                // Execute the script with dynamic paths
-                exec($pythonPath . ' ' . escapeshellarg($scriptPath), $output, $return_var);
-        
-                Log::info('Python Script Output:', $output);
-        
-                return view('real-time-monitoring', ['output' => $output]);
-            } else {
-                Log::error('Python script not found at: ' . $scriptPath);
-                return view('real-time-monitoring', ['error' => 'Python script not found.']);
-            }
-        });
-        
-       
         
         Route::post('/save-rfid/{userId}', 'RfidController@saveRFID')->name('save.rfid');
         Route::get('/admin/systeminfo', [SystemInfoController::class, 'index'])->name('adminsysteminfo');

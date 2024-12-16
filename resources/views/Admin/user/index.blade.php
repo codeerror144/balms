@@ -153,63 +153,69 @@
 </div>
 
 
-        @foreach($users as $userItem)
-        <div class="modal fade" id="registerRFIDModal{{ $userItem->id }}" tabindex="-1" role="dialog" aria-labelledby="registerRFIDModalLabel{{ $userItem->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title" id="registerRFIDModalLabel{{ $userItem->id }}">Register RFID</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+@foreach($users as $userItem)
+<div class="modal fade" id="registerRFIDModal{{ $userItem->id }}" tabindex="-1" role="dialog" aria-labelledby="registerRFIDModalLabel{{ $userItem->id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="registerRFIDModalLabel{{ $userItem->id }}">Register RFID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if($userItem->biometric && $userItem->biometric->rfid_data)
+                    <div class="alert alert-warning">
+                        This user is already registered with an RFID. Would you like to update the RFID UID?
                     </div>
-                    <div class="modal-body">
-                        @if($userItem->biometric && $userItem->biometric->rfid_data)
-                            <div class="alert alert-warning">
-                                This user is already registered with an RFID. Would you like to update the RFID UID?
-                            </div>
-                        @endif
-                        <form action="{{ route('save.rfid', $userItem->id) }}" method="POST" id="rfidForm{{ $userItem->id }}">
-                            @csrf
-                            <div class="form-group">
-                                <label for="rfid_data">RFID UID</label>
-                                <input type="text" class="form-control" id="rfid_data{{ $userItem->id }}" name="rfid_data" value="{{ $userItem->biometric->rfid_data ?? '' }}" readonly>
-                            </div>
-                            <button type="submit" class="btn btn-primary">{{ $userItem->biometric && $userItem->biometric->rfid_data ? 'Update' : 'Save' }}</button>
-                        </form>
+                @endif
+                <form action="{{ route('save.rfid', $userItem->id) }}" method="POST" id="rfidForm{{ $userItem->id }}">
+                    @csrf
+                    <div class="form-group">
+                        <label for="rfid_data">RFID UID</label>
+                        <input type="text" class="form-control" id="rfid_data{{ $userItem->id }}" name="rfid_data" value="{{ $userItem->biometric->rfid_data ?? '' }}" readonly>
                     </div>
-                </div>
+                    <button type="submit" class="btn btn-primary">
+                        {{ $userItem->biometric && $userItem->biometric->rfid_data ? 'Update' : 'Save' }}
+                    </button>
+                </form>
             </div>
         </div>
-        @endforeach
+    </div>
+</div>
+@endforeach
 
 
-        <!-- Script to handle RFID UID fetch for each modal -->
-        <script>
-            $(document).ready(function() {
-                $('[id^="registerRFIDModal"]').on('show.bs.modal', function(event) {
-                    var modal = $(this);
-                    var userId = modal.attr('id').replace('registerRFIDModal', '');
-                    var inputField = modal.find('#rfid_data' + userId);
+<script>
+    $(document).ready(function () {
+        const pythonApiUrl = "https://c3e7-222-127-158-26.ngrok-free.app"; // Replace with your ngrok URL
+        const secretToken = "Bearer 3f211ca2479816f55afa12cce285513f8b84f477f54aaa9939e6e4d85f8b7c44"; // Secret token
 
+        // Handle RFID fetch when the modal is shown
+        $('[id^="registerRFIDModal"]').on('show.bs.modal', function () {
+            const modal = $(this);
+            const userId = modal.attr('id').replace('registerRFIDModal', '');
+            const inputField = modal.find('#rfid_data' + userId);
 
-                    $.ajax({
-                        url: '/fetch-rfid-uid',
-                        method: 'GET',
-                        success: function(data) {
-                            if (data.uid) {
-                                inputField.val(data.uid); // Set the UID in the input field
-                            } else {
-                                alert(data.error); // Display error if any
-                            }
-                        },
-                        error: function() {
-                            alert('Error fetching RFID UID');
-                        }
-                    });
-                });
+            // AJAX request to Python API to fetch RFID UID
+            $.ajax({
+                url: pythonApiUrl + '/fetch-rfid-uid',
+                method: 'GET',
+                headers: { 'Authorization': secretToken },
+                success: function (data) {
+                    if (data.uid) {
+                        inputField.val(data.uid); // Set the UID in the input field
+                    } else {
+                        alert('Error fetching RFID UID: ' + data.error);
+                    }
+                },
+                error: function () {
+                    alert('Failed to fetch RFID UID. Please try again.');
+                }
             });
-        </script>
+        });
+    });
+</script>
 
 
 

@@ -63,31 +63,33 @@
                 <ul class="navbar-nav navbar-nav-right d-flex align-items-center">
 
                    <!-- Notification Dropdown -->
-                    <li class="nav-item dropdown mr-3">
-                        <a class="nav-link" href="javascript:void(0);" id="notificationBell" data-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-bell"></i>
-                            <!-- Badge for new notifications -->
-                            <span class="badge badge-danger" id="notification-count">
-                                {{ is_countable($notifications) ? count($notifications) : 0 }}
-                            </span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right" id="notification-menu" style="display: none;">
-                            <br>
-                            <h6 class="dropdown-header">Notifications</h6>
-                            <div id="notifications-list" style="max-height: 1000px; overflow-y: auto;">
-                                @if(!empty($notifications) && $notifications->count() > 0)
-                                    @foreach($notifications as $notification)
-                                        <a class="dropdown-item" href="{{ route('notification.show', $notification->id) }}">
-                                        
-                                            {{ $notification->title }} - {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
-                                        </a>
-                                    @endforeach
-                                @else
-                                    <p class="dropdown-item">No new notifications</p>
-                                @endif
-                            </div>
-                        </div>
-                    </li>
+                   <!-- Notification Dropdown -->
+<li class="nav-item dropdown mr-3">
+    <a class="nav-link" href="javascript:void(0);" id="notificationBell" data-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-bell"></i>
+        <!-- Badge for new notifications -->
+        <span class="badge badge-danger" id="notification-count">
+            {{ is_countable($notifications) ? count($notifications) : 0 }}
+        </span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-right" id="notification-menu" style="display: none;">
+        <br>
+        <h6 class="dropdown-header">Notifications</h6>
+        <div id="notifications-list" style="max-height: 1000px; overflow-y: auto;">
+            @if(!empty($notifications) && $notifications->count() > 0)
+                @foreach($notifications as $notification)
+                    <a class="dropdown-item" href="{{ route('notification.show', $notification->id) }}">
+                        <!-- Display title and exact created_at time -->
+                        {{ $notification->title }} - {{ $notification->created_at->format('Y-m-d H:i:s') }}
+                    </a>
+                @endforeach
+            @else
+                <p class="dropdown-item">No new notifications</p>
+            @endif
+        </div>
+    </div>
+</li>
+
 
 
                     <!-- Profile Dropdown -->
@@ -148,13 +150,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
-    <a class="nav-link" href="{{ url('/logbook') }}">
+    <a class="nav-link" href="javascript:void(0);" id="logbook-monitoring">
         <i class="nav-icon fas fa-book menu-icon"></i>
         <span class="menu-title">Logbook Monitoring</span>
     </a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="{{ url('/attendance') }}">
+    <a class="nav-link" href="javascript:void(0);" id="attendance-monitoring">
         <i class="nav-icon fas fa-calendar-check menu-icon"></i>
         <span class="menu-title">Attendance Monitoring</span>
     </a>
@@ -205,6 +207,47 @@
             });
         });
     </script>
+
+<script>
+    $(document).ready(function () {
+        const pythonApiUrl = "https://c3e7-222-127-158-26.ngrok-free.app"; 
+        const secretToken = "Bearer 3f211ca2479816f55afa12cce285513f8b84f477f54aaa9939e6e4d85f8b7c44"; // Your secret token
+
+        // Logbook Monitoring
+        $('#logbook-monitoring').click(function () {
+            $.ajax({
+                url: pythonApiUrl + '/logbook-monitoring',
+                method: 'POST',
+                headers: { 'Authorization': secretToken },
+                success: function (response) {
+                    alert(response.message);
+                },
+                error: function () {
+                    alert('Failed to start logbook monitoring.');
+                }
+            });
+        });
+
+        // Attendance Monitoring
+        $('#attendance-monitoring').click(function () {
+            $.ajax({
+                url: pythonApiUrl + '/attendance-monitoring',
+                method: 'POST',
+                headers: { 'Authorization': secretToken },
+                success: function (response) {
+                    alert(response.message);
+                },
+                error: function () {
+                    alert('Failed to start attendance monitoring.');
+                }
+            });
+        });
+
+        
+        });
+
+</script>
+
 </body>
 
 </html>
