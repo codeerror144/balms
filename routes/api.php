@@ -21,4 +21,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::post('/upload-log-picture', [LogController::class, 'uploadLogPicture']);
+Route::post('/logs/receive', [LogController::class, 'receiveLogs']);
+Route::post('/attendances/receive', [LogController::class, 'receiveAttendances']);
+

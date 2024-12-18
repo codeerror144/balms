@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomAuthController;
 use App\Http\Controllers\Student\StudentController;
@@ -72,6 +73,9 @@ use App\Http\Controllers\NotificationController;
 
     });
 
+ 
+
+    
     });
         // Employee routes (employee role required)
     Route::group(['middleware' => ['ifEmployee']], function () {

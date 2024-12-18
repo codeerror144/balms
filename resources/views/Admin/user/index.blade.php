@@ -185,37 +185,34 @@
 </div>
 @endforeach
 
-
 <script>
     $(document).ready(function () {
-        const pythonApiUrl = "https://c3e7-222-127-158-26.ngrok-free.app"; // Replace with your ngrok URL
-        const secretToken = "Bearer 3f211ca2479816f55afa12cce285513f8b84f477f54aaa9939e6e4d85f8b7c44"; // Secret token
+        const nodeApiUrl = "http://localhost:3000"; // Update this to your server's URL in production
 
-        // Handle RFID fetch when the modal is shown
         $('[id^="registerRFIDModal"]').on('show.bs.modal', function () {
             const modal = $(this);
             const userId = modal.attr('id').replace('registerRFIDModal', '');
             const inputField = modal.find('#rfid_data' + userId);
 
-            // AJAX request to Python API to fetch RFID UID
+            // Fetch RFID UID
             $.ajax({
-                url: pythonApiUrl + '/fetch-rfid-uid',
+                url: nodeApiUrl + '/fetch-rfid-uid',
                 method: 'GET',
-                headers: { 'Authorization': secretToken },
                 success: function (data) {
                     if (data.uid) {
-                        inputField.val(data.uid); // Set the UID in the input field
+                        inputField.val(data.uid);
                     } else {
-                        alert('Error fetching RFID UID: ' + data.error);
+                        alert('No RFID UID detected.');
                     }
                 },
                 error: function () {
-                    alert('Failed to fetch RFID UID. Please try again.');
+                    alert('Error connecting to Node.js server.');
                 }
             });
         });
     });
 </script>
+
 
 
 

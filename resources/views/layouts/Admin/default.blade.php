@@ -149,7 +149,7 @@
                             <span class="menu-title">System Information</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
     <a class="nav-link" href="javascript:void(0);" id="logbook-monitoring">
         <i class="nav-icon fas fa-book menu-icon"></i>
         <span class="menu-title">Logbook Monitoring</span>
@@ -160,7 +160,7 @@
         <i class="nav-icon fas fa-calendar-check menu-icon"></i>
         <span class="menu-title">Attendance Monitoring</span>
     </a>
-</li>
+</li> -->
 
                    
                 </ul>

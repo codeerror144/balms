@@ -65,4 +65,45 @@ class LogController extends Controller
 
         return view('Admin.log.attendances', compact('attendances', 'searchTerm'));
     }
+
+    public function receiveLogs(Request $request)
+    {
+        // Validate incoming request
+        $validatedData = $request->validate([
+            'user_id' => 'required|integer',
+            'room' => 'required|string|max:255',
+            'log_time' => 'required|date',
+            'type' => 'required|string|max:255',
+        ]);
+
+        // Save the log to the database
+        $log = new Log();
+        $log->user_id = $validatedData['user_id'];
+        $log->room = $validatedData['room'];
+        $log->log_time = $validatedData['log_time'];
+        $log->type = $validatedData['type'];
+        $log->save();
+
+        return response()->json(['message' => 'Log received successfully!'], 201);
+    }
+
+        public function receiveAttendances(Request $request)
+    {
+        // Validate incoming request
+        $validatedData = $request->validate([
+            'user_id' => 'required|integer',
+            'login_time' => 'required|date',
+            'logout_time' => 'required|date',
+            'session' => 'required|string|max:255',
+        ]);
+
+        
+        $attendances = new Attendance();
+        $attendances->user_id = $validatedData['user_id'];
+        $attendances->login_time = $validatedData['login_time'];
+        $attendances->logout_time = $validatedData['logout_time'];
+        $attendances->save();
+
+        return response()->json(['message' => 'Attendance received successfully!'], 201);
+    }
 }
